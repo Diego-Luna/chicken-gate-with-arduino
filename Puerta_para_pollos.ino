@@ -30,7 +30,7 @@ unsigned long mySeconds = 0;
 unsigned long myMinutes = 0;
 unsigned long myHours = 0;
 
-bool time5Hours = true;
+bool time6Hours = true;
 
 int dayStatus = 0; // 0 -> no definido, 1 -> Dia , 2-> noche
 
@@ -57,7 +57,7 @@ void loop() {
   timeRead();
 
   // noche
-  if (input < 30 && activate == false && time5Hours == true && ( dayStatus == 1 ||  dayStatus == 0) ) {
+  if (input < 30 && activate == false && time6Hours == true && ( dayStatus == 1 ||  dayStatus == 0) ) {
     Serial.print("--->  if 1 noche");
     enableMotors();
     move(forward, 180);
@@ -66,12 +66,12 @@ void loop() {
     fullStop();
 
     myTime2 = myTime1;
-    time5Hours = false;
+    time6Hours = false;
     dayStatus = 2;
   }
 
   // dia
-  if ( input > 30 && activate == true && time5Hours == true && ( dayStatus == 2 ||  dayStatus == 0)  ) {
+  if ( input > 30 && activate == true && time6Hours == true && ( dayStatus == 2 ||  dayStatus == 0)  ) {
     Serial.print("--->  if 2 Dia");
     enableMotors();
     move(backward, 180);
@@ -80,7 +80,7 @@ void loop() {
     fullStop();
 
     myTime2 = myTime1;
-    time5Hours = false;
+    time6Hours = false;
     dayStatus = 1;
   }
 
@@ -124,8 +124,8 @@ void timeRead() {
     dayStatus = 2;
   }
 
-  if (myHours >= 5) {
-    time5Hours = true;
+  if (myHours >= 6) {
+    time6Hours = true;
   }
 
 
@@ -159,11 +159,11 @@ void timeRead() {
 void timeValidation() {
 
   /*if ( myHours < 1   || (myHours == 11 && (myMinutes >= 0 && myMinutes <= 30)  )) {
-    time5Hours = true;
+    time6Hours = true;
     }
 
     if ((myHours >= 1 && myHours != 11) || (myHours == 11 &&  myHours > 30) ) {
-    time5Hours  = false;
+    time6Hours  = false;
     }*/
 }
 
