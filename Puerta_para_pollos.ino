@@ -1,16 +1,13 @@
 const int pinPWMA = 6;
 const int pinAIN2 = 7;
 const int pinAIN1 = 8;
-const int pinBIN1 = 9;
-const int pinBIN2 = 10;
-const int pinPWMB = 11;
-const int pinSTBY = 12;
+const int pinSTBY = 9; // 12
 
 const int waitTime = 2000;   //espera entre fases
 const int speed = 200;      //velocidad de giro
 
 const int pinMotorA[3] = { pinPWMA, pinAIN2, pinAIN1 };
-const int pinMotorB[3] = { pinPWMB, pinBIN1, pinBIN2 };
+// const int pinMotorB[3] = { pinPWMB, pinBIN1, pinBIN2 };
 
 enum moveDirection {
   forward,
@@ -40,9 +37,6 @@ void setup() {
   pinMode(pinAIN2, OUTPUT);
   pinMode(pinAIN1, OUTPUT);
   pinMode(pinPWMA, OUTPUT);
-  pinMode(pinBIN1, OUTPUT);
-  pinMode(pinBIN2, OUTPUT);
-  pinMode(pinPWMB, OUTPUT);
 
   pinMode(LDRPin, INPUT);
 }
@@ -84,7 +78,6 @@ void loop() {
     dayStatus = 1;
   }
 
-  timeValidation();
 
   delay(250);
 }
@@ -156,17 +149,6 @@ void timeRead() {
   Serial.println();
 }
 
-void timeValidation() {
-
-  /*if ( myHours < 1   || (myHours == 11 && (myMinutes >= 0 && myMinutes <= 30)  )) {
-    time6Hours = true;
-    }
-
-    if ((myHours >= 1 && myHours != 11) || (myHours == 11 &&  myHours > 30) ) {
-    time6Hours  = false;
-    }*/
-}
-
 
 //Funciones que controlan el vehiculo
 void move(int direction, int speed)
@@ -174,12 +156,12 @@ void move(int direction, int speed)
   if (direction == forward)
   {
     moveMotorForward(pinMotorA, speed);
-    moveMotorForward(pinMotorB, speed);
+    //moveMotorForward(pinMotorB, speed);
   }
   else
   {
     moveMotorBackward(pinMotorA, speed);
-    moveMotorBackward(pinMotorB, speed);
+    //moveMotorBackward(pinMotorB, speed);
   }
 }
 
@@ -188,7 +170,7 @@ void fullStop()
 {
   disableMotors();
   stopMotor(pinMotorA);
-  stopMotor(pinMotorB);
+  //stopMotor(pinMotorB);
 }
 
 //Funciones que controlan los motores
