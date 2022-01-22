@@ -25,9 +25,13 @@ const int ButtonTop = A3;
 const int ButtonBottom = A2;
 const int ButtonOk = A1;
 
-int statusOkButton = 0; //0 -> no se ha echo nada, 1 -> abrier puerta, 2 -> cerrar puerta, 4, recalibrar.
+int statusOkButton = 0; //0 -> no se ha echo nada, 4 -> recalibrar, 2 -> abrier puerta, 3 -> cerrar puerta,
+int valueOkButton = HIGH;
 int statusTopButton = HIGH;
 int statusBottomButton = HIGH;
+
+int TiempoAbrirPuerta = 0;
+int TiempoCerrarPuerta = 0;
 
 unsigned long myOriginalTime = 0;
 unsigned long myTime1 = 0;
@@ -71,58 +75,110 @@ void setup() {
 
 void loop() {
 
-if(){
+  valueOkButton = digitalRead(statusOkButton);
 
-  input = analogRead(LDRPin);
+  if (statusOkButton == 2 || statusOkButton == 3) {
 
-  Serial.print("-> LDRPin :");
-  Serial.println(input);
+    input = analogRead(LDRPin);
 
-  timeRead();
+    Serial.print("-> LDRPin :");
+    Serial.println(input);
 
-  // noche
-  if (input < 30 && activate == false && time6Hours == true && ( dayStatus == 1 ||  dayStatus == 0) ) {
-    Serial.print("--->  if 1 noche");
-    enableMotors();
-    move(forward, 180);
-    delay(waitTime);
-    activate = true;
-    fullStop();
+    timeRead();
 
-    myTime2 = myTime1;
-    time6Hours = false;
-    dayStatus = 2;
+    // noche
+    if (input < 30 && activate == false && time6Hours == true && ( dayStatus == 1 ||  dayStatus == 0) ) {
+      Serial.print("--->  if 1 noche");
+      enableMotors();
+      move(forward, 180);
+      delay(waitTime);
+      activate = true;
+      fullStop();
+
+      myTime2 = myTime1;
+      time6Hours = false;
+      dayStatus = 2;
+    }
+
+    // dia
+    if ( input > 30 && activate == true && time6Hours == true && ( dayStatus == 2 ||  dayStatus == 0)  ) {
+      Serial.print("--->  if 2 Dia");
+      enableMotors();
+      move(backward, 180);
+      delay(waitTime);
+      activate = false;
+      fullStop();
+
+      myTime2 = myTime1;
+      time6Hours = false;
+      dayStatus = 1;
+    }
+
+
+    delay(250);
+
+  } else {
+    lcd.clear();
+
+    String textA = "A que hora se abra la puerta";
+
+    int tam_textoA = textA.length();
+
+
+    for (int i = tam_textoA; i > 0 ; i--)
+    {
+      String texto = textA.substring(i - 1);
+
+      // Limpiamos pantalla
+      lcd.clear();
+
+      //Situamos el cursor
+      lcd.setCursor(0, 0);
+
+      // Escribimos el texto
+      lcd.print(texto);
+
+      BottonsTime(TiempoAbrirPuerta);
+
+      lcd.setCursor(0, 1);
+      lcd.print(TiempoAbrirPuerta);
+      // Esperamos
+      delay(500);
+    }
+
   }
 
-  // dia
-  if ( input > 30 && activate == true && time6Hours == true && ( dayStatus == 2 ||  dayStatus == 0)  ) {
-    Serial.print("--->  if 2 Dia");
-    enableMotors();
-    move(backward, 180);
-    delay(waitTime);
-    activate = false;
-    fullStop();
-
-    myTime2 = myTime1;
-    time6Hours = false;
-    dayStatus = 1;
-  }
 
 
-  delay(250);
-  
-}else{
-   // set the cursor to column 0, line 1
-  // (note: line 1 is the second row, since counting begins with 0):
-  lcd.setCursor(0, 1);
-  // print the number of seconds since reset:
-  unsigned long tiempo = millis() / 1000;
-  lcd.print(tiempo);
+
 }
 
 
+void BottonsTime(int varTime) {
+  statusTopButton = digitalRead(ButtonTop);
+  statusBottomButton = digitalRead(ButtonBottom);
 
-  
+  if (statusTopButton == LOW) {
+    Serial.println("-> statusTopButton > " + varTime);
+
+    if (varTime = 1) {
+      TiempoAbrirPuerta += 1;
+    } else {
+      TiempoCerrarPuerta += 1;
+    }
+
+  }
+
+  if (statusBottomButton == LOW) {
+    Serial.println("-> statusBottomButton < " + varTime);
+
+    if (varTime = 1) {
+      TiempoAbrirPuerta -= 1;
+    } else {
+      TiempoCerrarPuerta -= 1;
+    }
+
+  }
 }
 
 // time
