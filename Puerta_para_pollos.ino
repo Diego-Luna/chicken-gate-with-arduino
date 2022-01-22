@@ -25,7 +25,7 @@ const int ButtonTop = A3;
 const int ButtonBottom = A2;
 const int ButtonOk = A1;
 
-int statusOkButton = 0; //0 -> no se ha echo nada, 4 -> recalibrar, 2 -> abrier puerta, 3 -> cerrar puerta,
+int statusOkButton = 0; //0 -> no se ha echo nada, 1 -> recalibrar, 3 -> abrier puerta, 4 -> cerrar puerta,
 int valueOkButton = HIGH;
 int statusTopButton = HIGH;
 int statusBottomButton = HIGH;
@@ -121,34 +121,57 @@ void loop() {
     lcd.clear();
 
     String textA = "A que hora se abra la puerta";
+    String textB = "A que hora se cierra la puerta";
 
     int tam_textoA = textA.length();
+    int tam_textoB = textB.length();
 
+    if (statusOkButton < 3) {
+      for (int i = tam_textoA; i > 0 ; i--) {
+        String texto = textA.substring(i - 1);
 
-    for (int i = tam_textoA; i > 0 ; i--)
-    {
-      String texto = textA.substring(i - 1);
+        // Limpiamos pantalla
+        lcd.clear();
 
-      // Limpiamos pantalla
-      lcd.clear();
+        //Situamos el cursor
+        lcd.setCursor(0, 0);
 
-      //Situamos el cursor
-      lcd.setCursor(0, 0);
+        // Escribimos el texto
+        lcd.print(texto);
 
-      // Escribimos el texto
-      lcd.print(texto);
+        BottonsTime(1);
 
-      BottonsTime(TiempoAbrirPuerta);
-
-      lcd.setCursor(0, 1);
-      lcd.print(TiempoAbrirPuerta);
-      // Esperamos
-      delay(500);
+        lcd.setCursor(0, 1);
+        lcd.print(TiempoAbrirPuerta);
+        // Esperamos
+        delay(250);
+      }
     }
 
+    if (statusOkButton == 3) {
+      for (int i = tam_textoB; i > 0 ; i--) {
+        String texto = textB.substring(i - 1);
+
+        // Limpiamos pantalla
+        lcd.clear();
+
+        //Situamos el cursor
+        lcd.setCursor(0, 0);
+
+        // Escribimos el texto
+        lcd.print(texto);
+
+        BottonsTime(2);
+
+        lcd.setCursor(0, 1);
+        lcd.print(TiempoCerrarPuerta);
+        // Esperamos
+        delay(250);
+      }
+    }
+
+
   }
-
-
 
 
 }
@@ -157,6 +180,7 @@ void loop() {
 void BottonsTime(int varTime) {
   statusTopButton = digitalRead(ButtonTop);
   statusBottomButton = digitalRead(ButtonBottom);
+  valueOkButton = digitalRead(ButtonOk);
 
   if (statusTopButton == LOW) {
     Serial.println("-> statusTopButton > " + varTime);
@@ -179,6 +203,17 @@ void BottonsTime(int varTime) {
     }
 
   }
+
+  if (valueOkButton == LOW) {
+    if (varTime <= 2 && varTime != 4) {
+      statusOkButton = 3;
+    }
+
+    if (varTime <= 3) {
+      statusOkButton = 4;
+    }
+  }
+
 }
 
 // time
