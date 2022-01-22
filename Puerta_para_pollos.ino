@@ -1,4 +1,6 @@
 // MoonMakers
+#include <LiquidCrystal.h>
+
 const int pinPWMA = 6;
 const int pinAIN2 = 7;
 const int pinAIN1 = 8;
@@ -8,7 +10,6 @@ const int waitTime = 2000;   //espera entre fases
 const int speed = 200;      //velocidad de giro
 
 const int pinMotorA[3] = { pinPWMA, pinAIN2, pinAIN1 };
-// const int pinMotorB[3] = { pinPWMB, pinBIN1, pinBIN2 };
 
 enum moveDirection {
   forward,
@@ -19,6 +20,14 @@ bool activate = false;
 
 const int LDRPin = A0;
 int input = 0;
+
+const int ButtonTop = A3;
+const int ButtonBottom = A2;
+const int ButtonOk = A1;
+
+int statusOkButton = 0; //0 -> no se ha echo nada, 1 -> abrier puerta, 2 -> cerrar puerta, 4, recalibrar.
+int statusTopButton = HIGH;
+int statusBottomButton = HIGH;
 
 unsigned long myOriginalTime = 0;
 unsigned long myTime1 = 0;
@@ -32,6 +41,11 @@ bool time6Hours = true;
 
 int dayStatus = 0; // 0 -> no definido, 1 -> Dia , 2-> noche
 
+// initialize the library by associating any needed LCD interface pin
+// with the arduino pin number it is connected to
+const int rs = 12, en = 11, d4 = 5, d5 = 4, d6 = 3, d7 = 2;
+LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
+
 void setup() {
   Serial.begin(9600);
 
@@ -39,10 +53,25 @@ void setup() {
   pinMode(pinAIN1, OUTPUT);
   pinMode(pinPWMA, OUTPUT);
 
+  pinMode(ButtonTop, INPUT);
+  pinMode(ButtonBottom, INPUT);
+  pinMode(ButtonOk, INPUT);
+
   pinMode(LDRPin, INPUT);
+
+  // set up the LCD's number of columns and rows:
+  lcd.begin(16, 2);
+  Serial.begin(9600);
+  // Print a message to the LCD.
+  lcd.print("   MoonMakers   ");
+
+  delay(2000);
+  lcd.clear();
 }
 
 void loop() {
+
+if(){
 
   input = analogRead(LDRPin);
 
@@ -81,6 +110,19 @@ void loop() {
 
 
   delay(250);
+  
+}else{
+   // set the cursor to column 0, line 1
+  // (note: line 1 is the second row, since counting begins with 0):
+  lcd.setCursor(0, 1);
+  // print the number of seconds since reset:
+  unsigned long tiempo = millis() / 1000;
+  lcd.print(tiempo);
+}
+
+
+
+  
 }
 
 // time
