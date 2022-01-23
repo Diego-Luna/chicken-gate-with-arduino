@@ -1,4 +1,7 @@
 // MoonMakers
+#include <ThreeWire.h>  
+#include <RtcDS1302.h>
+
 #include <LiquidCrystal.h>
 
 const int pinPWMA = 6;
