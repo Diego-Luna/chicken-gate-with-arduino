@@ -1,11 +1,17 @@
 // MoonMakers
+
+// -> time module
 #include <ThreeWire.h>
 #include <RtcDS1302.h>
 
 ThreeWire myWire(A4, 10, 1); // IO, SCLK, CE
 RtcDS1302<ThreeWire> Rtc(myWire);
 
+// -> LCD 16x2
+
 #include <LiquidCrystal.h>
+
+// -> DC Motor
 
 const int pinPWMA = 6;
 const int pinAIN2 = 7;
