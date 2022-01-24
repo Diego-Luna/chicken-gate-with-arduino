@@ -417,7 +417,7 @@ void disableMotors()
   digitalWrite(pinSTBY, LOW);
 }
 
-// modulo de tiempo
+// -> time module
 #define countof(a) (sizeof(a) / sizeof(a[0]))
 void printDateTime(const RtcDateTime& dt)
 {
