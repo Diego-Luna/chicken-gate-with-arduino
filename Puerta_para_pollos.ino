@@ -30,8 +30,12 @@ enum moveDirection {
 
 bool activate = false;
 
+// -> Fotorresistor
+
 const int LDRPin = A0;
 int input = 0;
+
+// LCD buttons 16x2
 
 const int ButtonTop = A3;
 const int ButtonBottom = A2;
@@ -56,6 +60,8 @@ unsigned long myHours = 0;
 bool time6Hours = true;
 
 int dayStatus = 0; // 0 -> no definido, 1 -> Dia , 2-> noche
+
+// -> time module
 
 // initialize the library by associating any needed LCD interface pin
 // with the arduino pin number it is connected to
