@@ -141,6 +141,8 @@ void setup() {
 
 void loop() {
 
+  // -> time module
+
   RtcDateTime now = Rtc.GetDateTime();
 
   printDateTime(now);
@@ -153,6 +155,7 @@ void loop() {
     Serial.println("RTC lost confidence in the DateTime!");
   }
 
+  // validation funcion
   valueOkButton = digitalRead(statusOkButton);
 
   if (statusOkButton == 2 || statusOkButton == 3) {
