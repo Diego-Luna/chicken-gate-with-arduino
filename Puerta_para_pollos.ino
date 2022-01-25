@@ -46,6 +46,8 @@ int valueOkButton = HIGH;
 int statusTopButton = HIGH;
 int statusBottomButton = HIGH;
 
+// -> time module
+
 int TiempoAbrirPuerta = 0;
 int TiempoCerrarPuerta = 0;
 
@@ -80,6 +82,8 @@ void setup() {
   pinMode(ButtonOk, INPUT);
 
   pinMode(LDRPin, INPUT);
+
+// -> LCD 16x2
 
   // set up the LCD's number of columns and rows:
   lcd.begin(16, 2);
@@ -358,7 +362,8 @@ void timeRead() {
 }
 
 
-//Funciones que controlan el vehiculo
+// -> DC Motor
+
 void move(int direction, int speed)
 {
   if (direction == forward)
