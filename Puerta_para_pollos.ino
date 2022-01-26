@@ -1,17 +1,17 @@
 // -> MoonMakers <-
 
-// -> time module
+// -> time module <-
 #include <ThreeWire.h>
 #include <RtcDS1302.h>
 
 ThreeWire myWire(A4, 10, 1); // IO, SCLK, CE
 RtcDS1302<ThreeWire> Rtc(myWire);
 
-// -> LCD 16x2
+// -> LCD 16x2 <-
 
 #include <LiquidCrystal.h>
 
-// -> DC Motor
+// -> DC Motor <-
 
 const int pinPWMA = 6;
 const int pinAIN2 = 7;
@@ -30,12 +30,12 @@ enum moveDirection {
 
 bool activate = false;
 
-// -> Fotorresistor
+// -> Fotorresistor <-
 
 const int LDRPin = A0;
 int input = 0;
 
-// LCD buttons 16x2
+// -> LCD buttons 16x2 <-
 
 const int ButtonTop = A3;
 const int ButtonBottom = A2;
@@ -46,7 +46,7 @@ int valueOkButton = HIGH;
 int statusTopButton = HIGH;
 int statusBottomButton = HIGH;
 
-// -> time module
+// -> time module <-
 
 int TiempoAbrirPuerta = 0;
 int TiempoCerrarPuerta = 0;
@@ -63,7 +63,7 @@ bool time6Hours = true;
 
 int dayStatus = 0; // 0 -> no definido, 1 -> Dia , 2-> noche
 
-// -> time module
+// -> time module <-
 
 // initialize the library by associating any needed LCD interface pin
 // with the arduino pin number it is connected to
@@ -83,7 +83,7 @@ void setup() {
 
   pinMode(LDRPin, INPUT);
 
-// -> LCD 16x2
+// -> LCD 16x2 <-
 
   // set up the LCD's number of columns and rows:
   lcd.begin(16, 2);
@@ -96,7 +96,7 @@ void setup() {
 
   Rtc.Begin();
 
-  // modulo time
+  // -> modulo time <-
   RtcDateTime compiled = RtcDateTime(__DATE__, __TIME__);
   printDateTime(compiled);
   Serial.println();
@@ -141,7 +141,7 @@ void setup() {
 
 void loop() {
 
-  // -> time module
+  // -> time module <-
 
   RtcDateTime now = Rtc.GetDateTime();
 
@@ -155,7 +155,7 @@ void loop() {
     Serial.println("RTC lost confidence in the DateTime!");
   }
 
-  // validation funcion
+  // -> validation funcion <-
   valueOkButton = digitalRead(statusOkButton);
 
   if (statusOkButton == 2 || statusOkButton == 3) {
