@@ -51,6 +51,7 @@ int statusBottomButton = HIGH;
 int TiempoAbrirPuerta = 1;
 int TiempoCerrarPuerta = 23;
 
+String timeValue = "";
 
 int dayStatus = 0; // 0 -> no definido, 1 -> Dia , 2-> noche
 
@@ -91,7 +92,7 @@ void setup() {
 
   // -> modulo time <-
   RtcDateTime compiled = RtcDateTime(__DATE__, __TIME__);
-  printDateTime(compiled);
+  printDateTime(compiled, false);
   Serial.println();
 
   if (!Rtc.IsDateTimeValid())
@@ -138,10 +139,11 @@ void loop() {
 
   RtcDateTime now = Rtc.GetDateTime();
 
- // printDateTime(now);
+  printDateTime(now, false);
   Serial.println();
 
   if (statusOkButton == 3) {
+    BottonsTime(0);
 
     VerificarTiempo(now);
 
@@ -173,8 +175,18 @@ void loop() {
 
     }
 
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("1234567890123456");
+    lcd.print("La Hora es: ");
+
+    lcd.setCursor(0, 1);
+
+    lcd.print(timeValue);
 
     delay(250);
+
+    BottonsTime(0);
 
   } else {
 
@@ -212,7 +224,8 @@ void loop() {
           break;
         }
 
-        delay(500);
+        delay(700);
+        lcd.clear();
       }
     }
 
@@ -242,7 +255,8 @@ void loop() {
           break;
         }
 
-        delay(400);
+        delay(700);
+        lcd.clear();
       }
     }
 
@@ -251,7 +265,6 @@ void loop() {
 
   }
 
-  delay(200);
 }
 
 
@@ -269,7 +282,7 @@ void BottonsTime(int varTime) {
       }
 
     } else {
-      if (TiempoAbrirPuerta <= 22) {
+      if (TiempoCerrarPuerta <= 22) {
         TiempoCerrarPuerta += 1;
       }
 
@@ -286,7 +299,7 @@ void BottonsTime(int varTime) {
       }
 
     } else {
-      if (TiempoAbrirPuerta >= 2) {
+      if (TiempoCerrarPuerta >= 2) {
         TiempoCerrarPuerta -= 1;
       }
 
@@ -297,6 +310,11 @@ void BottonsTime(int varTime) {
   if (valueOkButton == LOW) {
     Serial.print("-> valueOkButton OK -> ");
     Serial.println(statusOkButton);
+
+    if (statusOkButton == 3) {
+      statusOkButton = 1;
+
+    }
 
     if (statusOkButton == 2) {
       statusOkButton = 3;
@@ -388,10 +406,16 @@ void printDateTime(const RtcDateTime& dt , bool valueReturn) {
              dt.Minute(),
              dt.Second() );
 
-   
   Serial.print(datestring);
 
-  return datestring;
+  snprintf_P(datestring,
+             countof(datestring),
+             PSTR("%02u:%02u:%02u"),
+             dt.Hour(),
+             dt.Minute(),
+             dt.Second() );
+
+  timeValue = datestring;
 }
 void VerificarTiempo(const RtcDateTime& dt) {
   char datestring[20];
@@ -414,6 +438,5 @@ void VerificarTiempo(const RtcDateTime& dt) {
   if ( TiempoCerrarPuerta == dt.Hour() ) {
     dayStatus = 2;
   }
-
 
 }
