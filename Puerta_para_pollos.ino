@@ -41,7 +41,7 @@ const int ButtonTop = A1;
 const int ButtonBottom = 13;
 const int ButtonOk = 10;
 
-int statusOkButton = 0; //0 -> no se ha echo nada, 1 -> recalibrar, 2 -> abrier puerta, 3 -> cerrar puerta,
+byte statusOkButton = 0; //0 -> no se ha echo nada, 1 -> recalibrar, 2 -> abrier puerta, 3 -> cerrar puerta,
 int valueOkButton = HIGH;
 int statusTopButton = HIGH;
 int statusBottomButton = HIGH;
@@ -53,9 +53,9 @@ int TiempoCerrarPuerta = 23;
 
 String timeValue = "";
 
-int dayStatus = 0; // 0 -> no definido, 1 -> Dia , 2-> noche
+byte dayStatus = 0; // 0 -> no definido, 1 -> Dia , 2-> noche
 
-// -> time module <-
+// -> LCD buttons 16x2 <-
 
 // initialize the library by associating any needed LCD interface pin
 // with the arduino pin number it is connected to
@@ -81,7 +81,7 @@ void setup() {
 
   // set up the LCD's number of columns and rows:
   lcd.begin(16, 2);
-  //Serial.begin(9600);
+
   // Print a message to the LCD.
   lcd.print("   MoonMakers   ");
 
@@ -148,11 +148,6 @@ void loop() {
 
     VerificarTiempo(now);
 
-    //input = analogRead(LDRPin);
-
-    //Serial.print("-> LDRPin :");
-    //Serial.println(input);
-
     // noche
     if (activate == false &&  dayStatus == 1 ) {
       Serial.println("--->  if 1 noche");
@@ -181,19 +176,15 @@ void loop() {
     lcd.print(timeValue);
     delay(250);
 
-    BottonsTime(0);
-
   } else {
 
     lcd.clear();
 
-    String textA = "            A que hora se abra la puerta";
-    String textB = "           A que hora se cierra la puerta";
+    String textA = "          A que hora se abrira la puerta";
+    String textB = "         A que hora se cerrara la puerta";
 
     int tam_textoA = textA.length();
     int tam_textoB = textB.length();
-
-    BottonsTime(0);
 
     if (statusOkButton == 2) {
       for (int i = tam_textoB; i > 0 ; i--) {
@@ -206,6 +197,9 @@ void loop() {
         BottonsTime(2);
 
         lcd.setCursor(0, 1);
+        lcd.print("Hora:");
+
+        lcd.setCursor(5, 1);
         lcd.print(TiempoCerrarPuerta);
 
         if (statusOkButton == 3 ) {
@@ -213,7 +207,7 @@ void loop() {
           lcd.setCursor(0, 0);
           lcd.print("   Listo Hora   ");
           lcd.setCursor(0, 1);
-          lcd.print("   establecida  ");
+          lcd.print("   Establecida  ");
 
           delay(5000);
           break;
@@ -237,14 +231,17 @@ void loop() {
         BottonsTime(1);
 
         lcd.setCursor(0, 1);
+        lcd.print("Hora:");
+
+        lcd.setCursor(5, 1);
         lcd.print(TiempoAbrirPuerta);
 
-        if (statusOkButton >= 1 ) {
+        if (statusOkButton >= 2 ) {
           lcd.clear();
           lcd.setCursor(0, 0);
           lcd.print("   Listo Hora   ");
           lcd.setCursor(0, 1);
-          lcd.print("   establecida  ");
+          lcd.print("   Establecida  ");
 
           delay(5000);
           break;
@@ -254,9 +251,6 @@ void loop() {
         lcd.clear();
       }
     }
-
-    BottonsTime(0);
-
 
   }
 
@@ -276,7 +270,7 @@ void BottonsTime(int varTime) {
         TiempoAbrirPuerta += 1;
       }
 
-    } else {
+    } else if (varTime == 2) {
       if (TiempoCerrarPuerta <= 22) {
         TiempoCerrarPuerta += 1;
       }
@@ -293,8 +287,8 @@ void BottonsTime(int varTime) {
         TiempoAbrirPuerta -= 1;
       }
 
-    } else {
-      if (TiempoCerrarPuerta >= 2) {
+    } else if (varTime == 2) {
+      if ((TiempoCerrarPuerta - TiempoAbrirPuerta) >= 2) {
         TiempoCerrarPuerta -= 1;
       }
 
@@ -307,16 +301,20 @@ void BottonsTime(int varTime) {
     Serial.println(statusOkButton);
 
     if (statusOkButton == 3) {
+      Serial.print("---> Restar ---> ");
+
+      lcd.clear();
+      lcd.setCursor(0, 0);
+      lcd.print("Configurar Hora");
+
       statusOkButton = 1;
+      delay(5000);
 
-    }
 
-    if (statusOkButton == 2) {
+    } else if (statusOkButton == 2) {
       statusOkButton = 3;
 
-    }
-
-    if (statusOkButton == 0 || statusOkButton == 1) {
+    } else if (statusOkButton == 0 || statusOkButton == 1) {
       statusOkButton = 2;
 
     }
@@ -332,12 +330,10 @@ void move(int direction, int speed)
   if (direction == forward)
   {
     moveMotorForward(pinMotorA, speed);
-    //moveMotorForward(pinMotorB, speed);
   }
   else
   {
     moveMotorBackward(pinMotorA, speed);
-    //moveMotorBackward(pinMotorB, speed);
   }
 }
 
@@ -346,7 +342,6 @@ void fullStop()
 {
   disableMotors();
   stopMotor(pinMotorA);
-  //stopMotor(pinMotorB);
 }
 
 //Funciones que controlan los motores
@@ -414,13 +409,13 @@ void printDateTime(const RtcDateTime& dt) {
 }
 void VerificarTiempo(const RtcDateTime& dt) {
 
-  //if ( TiempoAbrirPuerta == dt.Hour() ) {
-  if ( 52 == dt.Minute() ) {
+  if ( TiempoAbrirPuerta == dt.Hour() ) {
+    //if ( 40 == dt.Minute() ) {
     dayStatus = 1;
   }
 
-  //if ( TiempoCerrarPuerta == dt.Hour() ) {
-  if ( 53 == dt.Minute() ) {
+  if ( TiempoCerrarPuerta == dt.Hour() ) {
+    //if ( 41 == dt.Minute() ) {
     dayStatus = 2;
   }
 
