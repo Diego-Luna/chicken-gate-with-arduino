@@ -4,7 +4,7 @@
 #include <ThreeWire.h>
 #include <RtcDS1302.h>
 
-ThreeWire myWire(A4, 10, 1); // IO, SCLK, CE
+ThreeWire myWire(A4, A5, A2); // IO, SCLK, CE
 RtcDS1302<ThreeWire> Rtc(myWire);
 
 // -> LCD 16x2 <-
@@ -37,19 +37,19 @@ int input = 0;
 
 // -> LCD buttons 16x2 <-
 
-const int ButtonTop = A3;
-const int ButtonBottom = A2;
-const int ButtonOk = A1;
+const int ButtonTop = A1;
+const int ButtonBottom = 13;
+const int ButtonOk = 10;
 
-int statusOkButton = 0; //0 -> no se ha echo nada, 1 -> recalibrar, 3 -> abrier puerta, 4 -> cerrar puerta,
+int statusOkButton = 0; //0 -> no se ha echo nada, 1 -> recalibrar, 2 -> abrier puerta, 3 -> cerrar puerta,
 int valueOkButton = HIGH;
 int statusTopButton = HIGH;
 int statusBottomButton = HIGH;
 
 // -> time module <-
 
-int TiempoAbrirPuerta = 0;
-int TiempoCerrarPuerta = 0;
+int TiempoAbrirPuerta = 1;
+int TiempoCerrarPuerta = 23;
 
 unsigned long myOriginalTime = 0;
 unsigned long myTime1 = 0;
@@ -83,11 +83,13 @@ void setup() {
 
   pinMode(LDRPin, INPUT);
 
-// -> LCD 16x2 <-
+  pinMode(13, INPUT);
+  pinMode(10, INPUT);
+  // -> LCD 16x2 <-
 
   // set up the LCD's number of columns and rows:
   lcd.begin(16, 2);
-  Serial.begin(9600);
+  //Serial.begin(9600);
   // Print a message to the LCD.
   lcd.print("   MoonMakers   ");
 
@@ -148,17 +150,10 @@ void loop() {
   printDateTime(now);
   Serial.println();
 
-  if (!now.IsValid())
-  {
-    // Common Causes:
-    //    1) the battery on the device is low or even missing and the power line was disconnected
-    Serial.println("RTC lost confidence in the DateTime!");
-  }
-
   // -> validation funcion <-
-  valueOkButton = digitalRead(statusOkButton);
+  //valueOkButton = digitalRead(statusOkButton);
 
-  if (statusOkButton == 2 || statusOkButton == 3) {
+  if (statusOkButton == 3) {
 
     input = analogRead(LDRPin);
 
@@ -199,62 +194,81 @@ void loop() {
     delay(250);
 
   } else {
+
     lcd.clear();
 
-    String textA = "A que hora se abra la puerta";
-    String textB = "A que hora se cierra la puerta";
+    String textA = "            A que hora se abra la puerta";
+    String textB = "            A que hora se cierra la puerta";
 
     int tam_textoA = textA.length();
     int tam_textoB = textB.length();
 
-    if (statusOkButton < 3) {
-      for (int i = tam_textoA; i > 0 ; i--) {
-        String texto = textA.substring(i - 1);
+    BottonsTime(0);
 
-        // Limpiamos pantalla
-        lcd.clear();
-
-        //Situamos el cursor
-        lcd.setCursor(0, 0);
-
-        // Escribimos el texto
-        lcd.print(texto);
-
-        BottonsTime(1);
-
-        lcd.setCursor(0, 1);
-        lcd.print(TiempoAbrirPuerta);
-        // Esperamos
-        delay(250);
-      }
-    }
-
-    if (statusOkButton == 3) {
+    if (statusOkButton == 2) {
       for (int i = tam_textoB; i > 0 ; i--) {
         String texto = textB.substring(i - 1);
 
-        // Limpiamos pantalla
         lcd.clear();
-
-        //Situamos el cursor
         lcd.setCursor(0, 0);
-
-        // Escribimos el texto
         lcd.print(texto);
 
         BottonsTime(2);
 
         lcd.setCursor(0, 1);
         lcd.print(TiempoCerrarPuerta);
-        // Esperamos
-        delay(250);
+
+        if (statusOkButton == 3 ) {
+          lcd.clear();
+          lcd.setCursor(0, 0);
+          lcd.print("   Listo Hora   ");
+          lcd.setCursor(0, 1);
+          lcd.print("   establecida  ");
+
+          delay(5000);
+          break;
+        }
+
+        delay(500);
       }
     }
+
+    BottonsTime(0);
+
+    if (statusOkButton == 0 || statusOkButton == 1) {
+      for (int i = tam_textoA; i > 0 ; i--) {
+        String texto = textA.substring(i - 1);
+
+        // Limpiamos pantalla
+        lcd.clear();
+        lcd.setCursor(0, 0);
+        lcd.print(texto);
+        BottonsTime(1);
+
+        lcd.setCursor(0, 1);
+        lcd.print(TiempoAbrirPuerta);
+
+        if (statusOkButton >= 1 ) {
+          lcd.clear();
+          lcd.setCursor(0, 0);
+          lcd.print("   Listo Hora   ");
+          lcd.setCursor(0, 1);
+          lcd.print("   establecida  ");
+
+          delay(5000);
+          break;
+        }
+
+        delay(400);
+      }
+    }
+
+    BottonsTime(0);
 
 
   }
 
-
+  delay(200);
 }
 
 
@@ -266,10 +280,16 @@ void BottonsTime(int varTime) {
   if (statusTopButton == LOW) {
     Serial.println("-> statusTopButton > " + varTime);
 
-    if (varTime = 1) {
-      TiempoAbrirPuerta += 1;
+    if (varTime == 1) {
+      if (TiempoAbrirPuerta <= 22) {
+        TiempoAbrirPuerta += 1;
+      }
+
     } else {
-      TiempoCerrarPuerta += 1;
+      if (TiempoAbrirPuerta <= 22) {
+        TiempoCerrarPuerta += 1;
+      }
+
     }
 
   }
@@ -277,21 +297,32 @@ void BottonsTime(int varTime) {
   if (statusBottomButton == LOW) {
     Serial.println("-> statusBottomButton < " + varTime);
 
-    if (varTime = 1) {
-      TiempoAbrirPuerta -= 1;
+    if (varTime == 1) {
+      if (TiempoAbrirPuerta >= 2) {
+        TiempoAbrirPuerta -= 1;
+      }
+
     } else {
-      TiempoCerrarPuerta -= 1;
+      if (TiempoAbrirPuerta >= 2) {
+        TiempoCerrarPuerta -= 1;
+      }
+
     }
 
   }
 
   if (valueOkButton == LOW) {
-    if (varTime <= 2 && varTime != 4) {
+    Serial.print("-> valueOkButton OK -> ");
+    Serial.println(statusOkButton);
+
+    if (statusOkButton == 2) {
       statusOkButton = 3;
+
     }
 
-    if (varTime <= 3) {
-      statusOkButton = 4;
+    if (statusOkButton == 0 || statusOkButton == 1) {
+      statusOkButton = 2;
+
     }
   }
 
