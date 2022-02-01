@@ -51,15 +51,6 @@ int statusBottomButton = HIGH;
 int TiempoAbrirPuerta = 1;
 int TiempoCerrarPuerta = 23;
 
-unsigned long myOriginalTime = 0;
-unsigned long myTime1 = 0;
-unsigned long myTime2 = 0;
-
-unsigned long mySeconds = 0;
-unsigned long myMinutes = 0;
-unsigned long myHours = 0;
-
-bool time6Hours = true;
 
 int dayStatus = 0; // 0 -> no definido, 1 -> Dia , 2-> noche
 
@@ -147,37 +138,32 @@ void loop() {
 
   RtcDateTime now = Rtc.GetDateTime();
 
-  printDateTime(now);
+ // printDateTime(now);
   Serial.println();
-
-  // -> validation funcion <-
-  //valueOkButton = digitalRead(statusOkButton);
 
   if (statusOkButton == 3) {
 
-    input = analogRead(LDRPin);
+    VerificarTiempo(now);
 
-    Serial.print("-> LDRPin :");
-    Serial.println(input);
+    //input = analogRead(LDRPin);
 
-    timeRead();
+    //Serial.print("-> LDRPin :");
+    //Serial.println(input);
 
     // noche
-    if (input < 30 && activate == false && time6Hours == true && ( dayStatus == 1 ||  dayStatus == 0) ) {
+    //if (input < 30 && activate == false && time6Hours == true && ( dayStatus == 1 ||  dayStatus == 0) ) {
+    if (activate == false && ( dayStatus == 1 ||  dayStatus == 0) ) {
       Serial.print("--->  if 1 noche");
       enableMotors();
       move(forward, 180);
       delay(waitTime);
       activate = true;
       fullStop();
-
-      myTime2 = myTime1;
-      time6Hours = false;
-      dayStatus = 2;
     }
 
     // dia
-    if ( input > 30 && activate == true && time6Hours == true && ( dayStatus == 2 ||  dayStatus == 0)  ) {
+    //if ( input > 30 && activate == true && time6Hours == true && ( dayStatus == 2 ||  dayStatus == 0)  ) {
+    if (activate == true && ( dayStatus == 2 ||  dayStatus == 0)  ) {
       Serial.print("--->  if 2 Dia");
       enableMotors();
       move(backward, 180);
@@ -185,9 +171,6 @@ void loop() {
       activate = false;
       fullStop();
 
-      myTime2 = myTime1;
-      time6Hours = false;
-      dayStatus = 1;
     }
 
 
@@ -328,73 +311,6 @@ void BottonsTime(int varTime) {
 
 }
 
-// time
-void timeRead() {
-  myOriginalTime = millis();
-
-  if (myTime2 == 0) {
-    myTime1 = myOriginalTime;
-  } else {
-    Serial.println("----------------------------------------------");
-    Serial.print("-- En el else if, time2: ");
-    Serial.print( myTime2);
-    Serial.print(" myOriginalTime: ");
-    Serial.println(myOriginalTime);
-    Serial.println("----------------------------------------------");
-    myTime1 = myOriginalTime - myTime2;
-
-    delay(250);
-  }
-
-  // dia
-  if (input > 30 && dayStatus == 0) {
-
-    Serial.println();
-    Serial.print("- Dia - Dia - Dia - Dia - Dia - Dia - Dia- Dia - Dia - Dia - Dia - Dia -");
-    Serial.println();
-    dayStatus = 1;
-  }
-
-  // noche
-  if (input < 30 && dayStatus == 0) {
-    Serial.println();
-    Serial.print("* noche * noche * noche * noche * noche * noche * noche * noche * noche *");
-    Serial.println();
-    dayStatus = 2;
-  }
-
-  if (myHours >= 6) {
-    time6Hours = true;
-  }
-
-
-  mySeconds = ((float) myTime1 / 1000);
-  myMinutes = mySeconds / 60;
-  myHours = myMinutes / 60;
-
-
-  Serial.println();
-  Serial.print("_> myTime1: ");
-  Serial.println(myTime1);
-  Serial.println();
-
-  Serial.println();
-  Serial.print("_> mySeconds: ");
-  Serial.println(mySeconds);
-  Serial.println();
-
-  Serial.println();
-  Serial.print("_> myMinutes: ");
-  Serial.println(myMinutes);
-  Serial.println();
-
-
-  Serial.println();
-  Serial.print("_> myHours: ");
-  Serial.println(myHours);
-  Serial.println();
-}
-
 
 // -> DC Motor
 
@@ -458,8 +374,26 @@ void disableMotors()
 
 // -> time module
 #define countof(a) (sizeof(a) / sizeof(a[0]))
-void printDateTime(const RtcDateTime& dt)
-{
+
+void printDateTime(const RtcDateTime& dt , bool valueReturn) {
+  char datestring[20];
+
+  snprintf_P(datestring,
+             countof(datestring),
+             PSTR("%02u/%02u/%04u %02u:%02u:%02u"),
+             dt.Month(),
+             dt.Day(),
+             dt.Year(),
+             dt.Hour(),
+             dt.Minute(),
+             dt.Second() );
+
+   
+  Serial.print(datestring);
+
+  return datestring;
+}
+void VerificarTiempo(const RtcDateTime& dt) {
   char datestring[20];
 
   snprintf_P(datestring,
@@ -472,4 +406,14 @@ void printDateTime(const RtcDateTime& dt)
              dt.Minute(),
              dt.Second() );
   Serial.print(datestring);
+
+  if ( TiempoAbrirPuerta == dt.Hour() ) {
+    dayStatus = 1;
+  }
+
+  if ( TiempoCerrarPuerta == dt.Hour() ) {
+    dayStatus = 2;
+  }
+
+
 }
