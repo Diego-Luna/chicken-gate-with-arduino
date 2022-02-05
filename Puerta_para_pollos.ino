@@ -57,8 +57,6 @@ byte dayStatus = 0; // 0 -> no definido, 1 -> Dia , 2-> noche
 
 // -> LCD buttons 16x2 <-
 
-// initialize the library by associating any needed LCD interface pin
-// with the arduino pin number it is connected to
 const int rs = 12, en = 11, d4 = 5, d5 = 4, d6 = 3, d7 = 2;
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 
@@ -410,12 +408,10 @@ void printDateTime(const RtcDateTime& dt) {
 void VerificarTiempo(const RtcDateTime& dt) {
 
   if ( TiempoAbrirPuerta == dt.Hour() ) {
-    //if ( 40 == dt.Minute() ) {
     dayStatus = 1;
   }
 
   if ( TiempoCerrarPuerta == dt.Hour() ) {
-    //if ( 41 == dt.Minute() ) {
     dayStatus = 2;
   }
 
